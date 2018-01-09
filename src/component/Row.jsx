@@ -20,8 +20,8 @@ const Row = (props) => {
             textAlign: 'center',
         }}>
             <Parallax bgImage={props.img} blur={props.blur}>
-                <div style={{height: 500}}>
-                    <div style={insideStyles}>Stud-blog.loc</div>
+                <div style={{height: 614}}>
+                    <div style={insideStyles}>{props.text}</div>
                 </div>
             </Parallax>
         </div>

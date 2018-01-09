@@ -1,4 +1,4 @@
-//import {shape, bool,number, string, oneOf} from 'prop-types';
+
 import PropTypes from 'prop-types';
 import React from 'react';
 

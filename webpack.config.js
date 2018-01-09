@@ -20,14 +20,17 @@ module.exports = {
                             "libraryName": "antd",
                             "style": true
                         },
-                            {"libraryName": "react-toolbox",
-                            "style": true
-                            }]
+                            {
+                                "libraryName": "react-toolbox",
+                                "style": true
+                            },
+                        ]
                     ]
                 },
                 exclude: /(node_modules)/
             },
-            {test: /\.css$/, loaders:['style-loader', {
+            {
+                test: /\.css$/, loaders: ['style-loader', {
                     loader: "css-loader",
                     options: {
                         modules: true, // default is false
@@ -37,16 +40,18 @@ module.exports = {
                     },
 
                 },
-                   ],
+                ],
             },
-            {test: /\.less$/,
+            {
+                test: /\.less$/,
                 use: [{
                     loader: "style-loader" // creates style nodes from JS strings
                 }, {
                     loader: "css-loader" // translates CSS into CommonJS
                 }, {
                     loader: "less-loader" // compiles Less to CSS
-                }]},
+                }]
+            },
             {
                 test: /\.(gif|png|jpe?g|svg)$/i,
                 use: [

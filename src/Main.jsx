@@ -28,7 +28,7 @@ class Main extends Component {
     render() {
         return (
             <Content style={this.props.style}>
-                <Row img={img} blur={{min: -1, max: 5}}/>
+                <Row text="Stud-blog.loc" img={img} blur={{min: -1, max: 5}}/>
                 <div style={{textAlign: 'center'}}>
                     <h1>Останні дописи</h1>
                     <hr/>
@@ -43,9 +43,9 @@ class Main extends Component {
 
 
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({post}) => {
     return {
-        posts: state.PostReducer
+        posts: post
     }
 };
 

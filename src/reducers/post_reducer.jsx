@@ -7,7 +7,8 @@ export function PostReducer (state = {}, action) {
         case FETCH_POSTS:
             return _.mapKeys(action.payload.data, 'post_id');
         case FETCH_POST:
-            return action.payload.data;
+            const data = action.payload.data[0];
+            return { data };
         default: return state;
     }
 }
