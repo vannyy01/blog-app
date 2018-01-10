@@ -4,13 +4,14 @@ import {Layout} from "antd/lib/index";
 import {fetchPosts} from "../actions";
 import {connect} from 'react-redux';
 import {FETCH_POST} from "../actions";
+import PreloaderIcon, {ICON_TYPE} from 'react-preloader-icon';
 
 const {Content} = Layout;
 
 class Article extends Component {
     componentDidMount() {
         const {id} = this.props.match.params;
-        const fetchParameters = '/post/?s[post_id]=' + id + '&expand=author,blog';
+        const fetchParameters = '/post/?s[post_id]=' + id + '&expand=text,author,blog';
         this.props.fetchPosts(fetchParameters, FETCH_POST);
     }
 
@@ -18,7 +19,15 @@ class Article extends Component {
         const {post} = this.props;
 
         if (!post) {
-            return <div>...Loading</div>
+            return (
+                <PreloaderIcon
+                    type={ICON_TYPE.TAIL_SPIN}
+                    size={70}
+                    style={{margin: 'auto', zIndex: 1100}}
+                    strokeWidth={8}
+                    strokeColor="CornflowerBlue "
+                    duration={1000}
+                />)
         } else {
             return (
                 <Content style={{backgroundColor: 'white'}}>
@@ -27,6 +36,7 @@ class Article extends Component {
                          blur={{min: -1, max: 5}}/>
                     <main role="main" className="container"
                           style={{textAlign: 'left', margin: '5px 10px 5px 10px', backgroundColor: 'white'}}>
+
                         <div className="row">
                             <div className="col-sm-8 blog-main">
                                 <div className="blog-post">
@@ -37,7 +47,7 @@ class Article extends Component {
                                 </div>
                                 <div>
                                     <p>
-                                        {post.post_text}
+                                        {post.text}
                                     </p>
                                 </div>
                                 <div>

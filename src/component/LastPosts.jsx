@@ -1,14 +1,12 @@
-import React from "react";
-import {Layout} from "antd/lib/index";
+import React from "react"
 import Article from './Article';
 import {Route, Switch} from 'react-router-dom';
-import FullLastPosts from './FullLastPosts'
-const {Content} = Layout;
+import Posts from './Posts';
 
 const LastPosts = (props) => {
     return (
         <Switch>
-            <Route exact path='/post' component={FullLastPosts}/>
+            <Route exact path='/post' component={Posts}/>
             <Route path='/post/:id' component={Article}/>
         </Switch>
     )

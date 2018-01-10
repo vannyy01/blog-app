@@ -1,6 +1,8 @@
+import _ from 'lodash';
 import React, {Component} from "react";
 import {Card, CardMedia, CardTitle, CardText, CardActions} from 'react-toolbox/lib/card';
 import {Button} from 'react-toolbox/lib/button';
+import {Icon} from 'antd';
 import {postType} from "../types";
 import {Link} from 'react-router-dom';
 
@@ -15,13 +17,21 @@ class Post extends Component {
 
     render() {
         const post = this.props.content;
-        const MyLink = () => <Link to={`/post/${post.post_id}`}>{post.post_name}</Link>;
+        const MyLink = () => <Link style={{color: 'blue'}} to={`/post/${post.post_id}`}>{post.post_name}</Link>;
+        const Category = (props) => {
+            const {categories} = props;
+            return _.map(categories, category => {
+                    return category.name + ' ';
+                }
+            )
+
+        };
         return (
             <Card style={postStyles}>
                 <CardTitle
                     avatar="https://placeimg.com/80/80/animals"
-                    title={post.blog.name}
-                    subtitle={post.author.name}
+                    title={<Link style={{color: 'black'}} to={`/blog/${post.blog.id}`}>{post.blog.name}</Link>}
+                    subtitle={<Link style={{color: 'grey'}} to={`/user/${post.author.id}`}>{post.author.name}</Link>}
                 />
                 <CardMedia
                     aspectRatio="wide"
@@ -29,12 +39,16 @@ class Post extends Component {
                 />
                 <CardTitle
                     title={<MyLink/>}
-                    subtitle={post.category_id.toString()}
+                    subtitle={<Category categories={post.category}/>}
                 />
-                <CardText>{post.post_text}</CardText>
+                <CardText>{post.short_description}</CardText>
                 <CardActions>
-                    <Button label="Like"/>
-                    <Button label="Dislike"/>
+                    <Button>
+                        <Icon style={{fontSize: 20}} type="like-o"/>
+                    </Button>
+                    <Button>
+                        <Icon style={{fontSize: 20}} type="dislike-o"/>
+                    </Button>
                 </CardActions>
             </Card>
 
