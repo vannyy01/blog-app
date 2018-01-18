@@ -7,17 +7,15 @@ import Main from './Main';
 import promise from 'redux-promise';
 import {createStore, applyMiddleware} from "redux";
 import reducer from './reducers';
-import {BrowserRouter, Route, Switch} from 'react-router-dom';
-import LastPosts from './component/LastPosts';
+import {BrowserRouter, Switch} from 'react-router-dom';
 import Header from './component/Header';
-import Login from './component/Login';
 import setAuth from './client/setAuthorizationToken';
 import AuthService from './client/Auth';
 
-const Auth = new AuthService();
 import AuthRoutes from './routes/AuthRoutes';
 import AllowedRotes from './routes/AllowedRoutes';
 
+const Auth = new AuthService();
 const createStoreWithMiddleware = applyMiddleware(promise)(createStore);
 
 

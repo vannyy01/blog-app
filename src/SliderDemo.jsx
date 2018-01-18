@@ -1,7 +1,12 @@
 import {Layout, Menu, Icon} from 'antd';
+import React, {Component} from 'react';
+import AuthService from "./client/Auth";
+import {withRoute, Redirect, Link} from "react-router-dom";
+
+const Auth = new AuthService();
 
 const {Sider} = Layout;
-import React, {Component} from 'react';
+
 
 const SubMenu = Menu.SubMenu;
 
@@ -17,7 +22,46 @@ const style2 = {
     overflow: 'auto'
 };
 
-export class SiderDemo extends Component {
+class Users extends Component {
+    render() {
+        const replace = (path = '/') => {
+            return <Redirect to={{
+                pathname: path
+            }}/>
+        };
+        if (Auth.loggedIn()) {
+            return (
+                <SubMenu
+                    key="user_sub"
+                    title={<span><Icon type="user"/><span>User</span></span>}
+                    {...this.props}
+                >
+                    <Menu.Item key="6">Team 1</Menu.Item>
+                    <Menu.Item key="logout">
+                        <div onClick={() => Auth.logout(
+                            () => replace()
+                        )}>
+                            <Icon type="poweroff"/>
+                            Вийти
+                        </div>
+                    </Menu.Item>
+                </SubMenu>
+            )
+        } else {
+            return (
+                <Menu.Item key="login" {...this.props}>
+                    <Link to="/login">
+                        <Icon type="user"/>
+                        <span>Війти</span>
+                    </Link>
+                </Menu.Item>
+            )
+        }
+    }
+}
+
+export class SiderDemo
+    extends Component {
     constructor() {
         super();
         this.state = {
@@ -33,6 +77,8 @@ export class SiderDemo extends Component {
     }
 
     render() {
+
+
         return (
 
             <Sider
@@ -52,14 +98,7 @@ export class SiderDemo extends Component {
                         <Icon type="desktop"/>
                         <span>Option 2</span>
                     </Menu.Item>
-                    <SubMenu
-                        key="sub1"
-                        title={<span><Icon type="user"/><span>User</span></span>}
-                    >
-                        <Menu.Item key="3">Tom</Menu.Item>
-                        <Menu.Item key="4">Bill</Menu.Item>
-                        <Menu.Item key="5">Alex</Menu.Item>
-                    </SubMenu>
+                    <Users/>
                     <SubMenu
                         key="sub2"
                         title={<span><Icon type="team"/><span>Team</span></span>}

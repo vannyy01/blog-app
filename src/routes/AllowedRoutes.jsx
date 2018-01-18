@@ -1,7 +1,5 @@
 import React,{Component} from "react";
-import LastPosts from "../component/LastPosts";
-import {Route, Switch} from 'react-router-dom';
-import AuthService from "../client/Auth";
+import {Route} from 'react-router-dom';
 import Login from "../component/Login";
 import Main from "../Main";
 

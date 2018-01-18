@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import LastPosts from "../component/LastPosts";
 import {Route, Redirect} from 'react-router-dom';
 import AuthService from "../client/Auth";
-import AllowedRoutes from "./AllowedRoutes";
 
 const Auth = new AuthService();
 

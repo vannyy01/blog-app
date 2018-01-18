@@ -41,37 +41,13 @@ class Main extends Component {
     }
 
     render() {
-        const authButton =
-            Auth.loggedIn() === true ?
-                <div>Welcome <button onClick={
-                    () => Auth.logout(
-                        () => this.props.history.replace('/')
-                    )
-                }>
-                    Logout
-                </button>
-                </div>
-                : <Link to="/login">Log in</Link>
-        ;
-        const AuthButton = withRouter(({ history }) => (
-            Auth.loggedIn()  ? (
-                <p>
-                    Welcome! <button onClick={() => {
-                    Auth.logout(() => history.push('/'))
-                }}>Sign out</button>
-                </p>
-            ) : (
-                <p>You are not logged in. <Link to="/login">Log in</Link></p>
-            )
-        ));
+
         if (!this.props.posts) {
             return <div>...Loading</div>
         } else {
             return (
                 <Content style={this.props.style}>
                     <Row text="Stud-blog.loc" img={img} blur={{min: -1, max: 5}}/>
-                    <AuthButton/>
-                    <button onClick={this.handleCheckInfo}>Check Info</button>
                     <div style={{textAlign: 'center'}}>
                         <h1>Останні дописи</h1>
                         <hr/>
@@ -94,3 +70,15 @@ const mapStateToProps = ({post}) => {
 
 
 export default connect(mapStateToProps, {fetchPosts})(Main);
+
+const AuthButton = withRouter(({ history }) => (
+    Auth.loggedIn()  ? (
+        <p>
+            Welcome! <button onClick={() => {
+            Auth.logout(() => history.push('/'))
+        }}>Sign out</button>
+        </p>
+    ) : (
+        <p>You are not logged in. <Link to="/login">Log in</Link></p>
+    )
+));
