@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import axios from 'axios';
 import React, {Component} from "react";
 import Row from './component/Row';
 import {Layout} from "antd/lib/index";
@@ -7,14 +8,28 @@ import {fetchPosts} from "./actions";
 import {connect} from 'react-redux';
 import {postsTypes} from "./types";
 import img from './images/people-night-crowd.jpg';
+import AuthService from './client/Auth';
+import {withRouter, Link} from 'react-router-dom';
 
+const Auth = new AuthService();
 const {Content} = Layout;
 
 class Main extends Component {
 
-    componentDidMount() {
+    componentWillMount() {
         this.props.fetchPosts();
+    }
 
+    handleCheckInfo() {
+        axios.get(`${Auth.domain}/post/test`)
+            .then(
+                res => console.log(res)
+            )
+    }
+
+    handleLogout() {
+        Auth.logout();
+        this.props.history.replace('/login');
     }
 
     renderPosts() {
@@ -26,21 +41,49 @@ class Main extends Component {
     }
 
     render() {
-        return (
-            <Content style={this.props.style}>
-                <Row text="Stud-blog.loc" img={img} blur={{min: -1, max: 5}}/>
-                <div style={{textAlign: 'center'}}>
-                    <h1>Останні дописи</h1>
-                    <hr/>
+        const authButton =
+            Auth.loggedIn() === true ?
+                <div>Welcome <button onClick={
+                    () => Auth.logout(
+                        () => this.props.history.replace('/')
+                    )
+                }>
+                    Logout
+                </button>
                 </div>
-                <div className={"postWrapper"}>
-                    {this.renderPosts()}
-                </div>
-            </Content>
-        )
+                : <Link to="/login">Log in</Link>
+        ;
+        const AuthButton = withRouter(({ history }) => (
+            Auth.loggedIn()  ? (
+                <p>
+                    Welcome! <button onClick={() => {
+                    Auth.logout(() => history.push('/'))
+                }}>Sign out</button>
+                </p>
+            ) : (
+                <p>You are not logged in. <Link to="/login">Log in</Link></p>
+            )
+        ));
+        if (!this.props.posts) {
+            return <div>...Loading</div>
+        } else {
+            return (
+                <Content style={this.props.style}>
+                    <Row text="Stud-blog.loc" img={img} blur={{min: -1, max: 5}}/>
+                    <AuthButton/>
+                    <button onClick={this.handleCheckInfo}>Check Info</button>
+                    <div style={{textAlign: 'center'}}>
+                        <h1>Останні дописи</h1>
+                        <hr/>
+                    </div>
+                    <div className={"postWrapper"}>
+                        {this.renderPosts()}
+                    </div>
+                </Content>
+            )
+        }
     }
 }
-
 
 
 const mapStateToProps = ({post}) => {

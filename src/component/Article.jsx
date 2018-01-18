@@ -9,7 +9,7 @@ import PreloaderIcon, {ICON_TYPE} from 'react-preloader-icon';
 const {Content} = Layout;
 
 class Article extends Component {
-    componentDidMount() {
+    componentWillMount() {
         const {id} = this.props.match.params;
         const fetchParameters = '/post/?s[post_id]=' + id + '&expand=text,author,blog';
         this.props.fetchPosts(fetchParameters, FETCH_POST);
@@ -17,8 +17,7 @@ class Article extends Component {
 
     render() {
         const {post} = this.props;
-
-        if (!post) {
+        if (!this.props.post) {
             return (
                 <PreloaderIcon
                     type={ICON_TYPE.TAIL_SPIN}
@@ -64,6 +63,7 @@ class Article extends Component {
 }
 
 const mapStateToProps = ({post}) => {
+
     return {
         post: post.data,
     }

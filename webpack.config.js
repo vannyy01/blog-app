@@ -24,7 +24,8 @@ module.exports = {
                                 "libraryName": "react-toolbox",
                                 "style": true
                             },
-                        ]
+                        ] ,
+                        ['transform-object-rest-spread']
                     ]
                 },
                 exclude: /(node_modules)/
