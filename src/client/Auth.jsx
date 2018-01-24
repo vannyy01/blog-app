@@ -26,12 +26,44 @@ export default class AuthService {
         });
     }
 
+    signUp(values, callback){
+        delete values.confirmPassword;
+        return axios.post(`${this.domain}/profile/create`, values)
+            .then(this._checkStatus).then(res => {
+                alert('Вітаємо, Ви успішно Зареєстровані!');
+                callback();
+            }).catch(err => {
+                alert('Помилка реєстрації');
+            });
+    }
     loggedIn() {
         // Checks if there is a saved token and it's still valid
         const token = this.getToken(); // GEtting token from localstorage
         return !_.isEmpty(token) && token !== undefined && token.length === 32; // handwaiving here
     }
+    
 
+    /**
+     *
+     * @param value is nickname or email
+     */
+    asyncValidate(value) {
+        if (value.email) {
+            return axios.get(`${this.domain}/profile/validate/?email=${value.email}`).then((res) => {
+                if (res.data !== true) {
+                    throw {email: 'That email is taken'}
+                }
+            });
+        } else if (value.user_name) {
+            return axios.get(`${this.domain}/profile/validate/?username=${value.nickname}`).then((res) => {
+                if (res.data !== true) {
+                    throw {user_name: 'That nickname is taken'}
+                }
+            });
+        } else {
+            return new Promise(resolve => (0))
+        }
+    }
 
     setToken(idToken) {
 
@@ -53,22 +85,11 @@ export default class AuthService {
 
 
     axios(url, options) {
-        // performs api calls sending the required authentication headers
-
         // Setting Authorization header
         // Authorization: Bearer xxxxxxx.xxxxxxxx.xxxxxx
         if (this.loggedIn()) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${this.getToken()}`;
         }
-        /**return axios({
-            method: options.method,
-            headers: {
-                'Content-Type': 'application/json; charset= UTF-8',
-            },
-            url: url,
-            data: JSON.stringify(options.params)
-        })
-         .then(this._checkStatus)**/
 
         return axios.post(`${this.domain}/site/login`,
             options.params

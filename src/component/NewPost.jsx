@@ -1,81 +1,119 @@
 import React, {Component} from "react";
 import {Field, reduxForm} from "redux-form";
-import {Link} from "react-router-dom";
+import {Button} from 'antd';
 import {connect} from "react-redux";
 import {createPost} from "../actions";
 import {Layout} from "antd/lib/index";
-import sha1 from "js-sha1";
-const {Content} = Layout;
+import Row from '../component/Row';
+import {renderTextArea, renderInputField} from '../forms/Fields';
+import axios from "axios/index";
+import ChipInput from 'material-ui-chip-input';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
-let getCurrentValue = (e) => {
-  let hash =  sha1(sha1('17091998'));
-  let phpHash = 'f0c586c46b3c919e15bb45ef9712ea15db743331';
-    console.log(hash === phpHash);
-    console.log(e.target.value);
-};
+const {Content} = Layout;
+const domain = 'http://api.stud-blog.loc';
+
+function asyncValidate(value) {
+    if (value.post_name) {
+        return axios.get(`${domain}/post/validate/?post_name=${value.post_name}`).then((res) => {
+            if (res.data !== true) {
+                throw {post_name: 'Назва блогу зайнята'}
+            }
+        });
+    } else {
+        return new Promise(resolve => (0))
+    }
+}
 
 class PostNew extends Component {
     constructor() {
         super();
-        getCurrentValue = getCurrentValue.bind(this);
+        this.state = {
+            chips: []
+        };
+        this.handleChange = this.handleChange.bind(this)
     }
 
-
-    renderField(field) {
-        const {meta: {touched, error}} = field;
-        const className = `form-group ${touched && error ? "has-danger" : ""}`;
-        return (
-            <div className={className}>
-                <label>{field.label}</label>
-                <input className="form-control" type="text" {...field.input} />
-                <div className="text-help">
-                    {touched && error && <span style={{color: 'red'}}>{error}</span>}
-                </div>
-            </div>
-        );
-    }
-
-    onSubmit(values) {
+    onSubmit = (values) => {
         this.props.createPost(values, () => {
             this.props.history.push("/");
         });
-    }
+    };
+
+    handleChange = (chips) => {
+        console.log(chips);
+        this.setState(this.state.chips.concat(chips));
+        console.log(this.state.chips);
+    };
+
+    renderChipInput(field) {
+        const {meta: {touched, error}} = field;
+        const {placeholder} = field;
+        const className = `form-group ${touched && error ? "has-danger" : ""}`;
+        return (
+            <MuiThemeProvider>
+            <div className={className}>
+                    <label>{field.label}</label>
+                    <ChipInput
+                        style={{width: 400}}
+                        value={['foo', 'bar']}
+                        onRequestAdd={(chips) => (field)}
+                    />
+                    <div className="text-help">
+                        {touched && error && <span style={{color: 'red'}}>{error}</span>}
+                    </div>
+                </div>
+            </MuiThemeProvider>
+        );
+    };
 
     render() {
-        const {handleSubmit} = this.props;
-
+        const {handleSubmit, pristine, reset, submitting} = this.props;
         return (
-            <Content style={{marginTop: 200}}>
-                <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
-                    <Field
-                        label="Назва допису"
-                        name="post_name"
-                        onChange={getCurrentValue}
-                        component={this.renderField}
-                    />
-                    <Field
-                        label="Категорії"
-                        name="category"
-                        component={this.renderField}
-                    />
-                    <Field
-                        label="Короткий опис"
-                        name="short_description"
-                        component={this.renderField}
-                    />
-                    <Field
-                        label="Текст допису"
-                        name="text"
-                        component={this.renderField}
-                    />
-                    <Field
-                        label="Теги"
-                        name="tags"
-                        component={this.renderField}
-                    />
-                    <button type="submit" className="btn btn-primary">Submit</button>
-                    <Link to="/" className="btn btn-danger">Cancel</Link>
-                </form>
+            <Content style={{backgroundColor: 'white'}}>
+                <Row text="Створити новий допис"
+                     img={'https://images.pexels.com/photos/296881/pexels-photo-296881.jpeg?w=940&h=650&auto=compress&cs=tinysrgb'}
+                     blur={{min: -1, max: 5}}/>
+                <main role="main" className="container">
+                    <div className="row">
+                        <form style={{margin: 'auto', width: 400}} onSubmit={handleSubmit(this.onSubmit.bind(this))}>
+                            <Field
+                                label="Назва допису"
+                                name="post_name"
+                                placeholder="Введіть назву допису"
+                                component={renderInputField}
+                            />
+                            <Field
+                                label="Категорії"
+                                name="category"
+                                placeholder="Введіть категорії"
+                                component={renderInputField}
+                            />
+                            <Field
+                                label="Короткий опис"
+                                name="short_description"
+                                placeholder="Введіть короткий опис"
+                                component={renderTextArea}
+                            />
+                            <Field
+                                label="Текст допису"
+                                name="text"
+                                placeholder="Введіть текст допису"
+                                autosize={{minRows: 2, maxRows: 6}}
+                                component={renderTextArea}
+                            />
+                            <Field
+                                label="Теги"
+                                name="tags"
+                                placeholder="Введіть теги"
+                                component={this.renderChipInput}
+                            />
+                            <Button disabled={submitting} type="primary" htmlType="submit">Опублікувати</Button>
+                            <Button style={{marginLeft: 10}} disabled={pristine || submitting} onClick={reset}
+                                    type="danger">Очистити</Button>
+                        </form>
+                    </div>
+                </main>
             </Content>
         );
     }
@@ -107,6 +145,8 @@ function validate(values) {
 }
 
 export default reduxForm({
+    form: "CreatePost",
     validate,
-    form: "CreatePost"
+    asyncValidate,
+    asyncBlurFields: ['post_name']
 })(connect(null, {createPost})(PostNew));

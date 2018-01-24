@@ -14,7 +14,7 @@ module.exports = {
                 test: /\.jsx?$/,
                 loader: 'babel-loader',
                 options: {
-                    presets: ['react', 'babel-preset-env'],
+                    presets: ['react', 'es2016', 'babel-preset-env'],
                     plugins: [
                         ['import', {
                             "libraryName": "antd",
@@ -24,8 +24,17 @@ module.exports = {
                                 "libraryName": "react-toolbox",
                                 "style": true
                             },
-                        ] ,
-                        ['transform-object-rest-spread']
+                            {
+                                "libraryName": "material-ui",
+                                "style": true
+                            },
+                            {
+                                "libraryName": "material-ui-chip-input",
+                                "style": true
+                            }
+                        ],
+                        ['transform-object-rest-spread'],
+                        ['transform-class-properties']
                     ]
                 },
                 exclude: /(node_modules)/

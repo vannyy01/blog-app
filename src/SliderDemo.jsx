@@ -1,21 +1,16 @@
 import {Layout, Menu, Icon} from 'antd';
 import React, {Component} from 'react';
 import AuthService from "./client/Auth";
-import {withRoute, Redirect, Link} from "react-router-dom";
-
-const Auth = new AuthService();
+import {Redirect, Link} from "react-router-dom";
 
 const {Sider} = Layout;
-
-
+const Auth = new AuthService();
 const SubMenu = Menu.SubMenu;
-
 const style1 = {
     width: '200px',
     position: 'fixed',
     overflow: 'auto'
 };
-
 const style2 = {
     width: '80px',
     position: 'fixed',
@@ -29,32 +24,46 @@ class Users extends Component {
                 pathname: path
             }}/>
         };
+        const {user} = this.props;
         if (Auth.loggedIn()) {
+                return (
+                    <SubMenu
+                        key="user_sub"
+                        title={<span><Icon type="user"/><span>{this.props.user.name}</span></span>}
+                        {...this.props}
+                    >
+                        <Menu.Item key="6">Team 1</Menu.Item>
+                        <Menu.Item key="logout">
+                            <div onClick={() => Auth.logout(
+                                () => replace()
+                            )}>
+                                <Icon type="poweroff"/>
+                                Вийти
+                            </div>
+                        </Menu.Item>
+                    </SubMenu>
+                )
+        } else {
             return (
                 <SubMenu
                     key="user_sub"
-                    title={<span><Icon type="user"/><span>User</span></span>}
+                    title={<span><Icon type="usergroup-add" /><span>Авторизація</span></span>}
                     {...this.props}
                 >
-                    <Menu.Item key="6">Team 1</Menu.Item>
-                    <Menu.Item key="logout">
-                        <div onClick={() => Auth.logout(
-                            () => replace()
-                        )}>
-                            <Icon type="poweroff"/>
-                            Вийти
-                        </div>
-                    </Menu.Item>
+                        <Menu.Item key="login">
+                            <Link to="/login">
+                                <Icon type="user"/>
+                                <span>Війти</span>
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key="signup">
+                            <Link to="/signup">
+                                <Icon type="user-add" />
+                                <span>Реєстрація</span>
+                            </Link>
+                        </Menu.Item>
                 </SubMenu>
-            )
-        } else {
-            return (
-                <Menu.Item key="login" {...this.props}>
-                    <Link to="/login">
-                        <Icon type="user"/>
-                        <span>Війти</span>
-                    </Link>
-                </Menu.Item>
+
             )
         }
     }
@@ -66,9 +75,8 @@ export class SiderDemo
         super();
         this.state = {
             collapsed: true,
-            style: style2
+            style: style2,
         };
-
         this.onCollapse = this.onCollapse.bind(this)
     }
 
@@ -77,10 +85,7 @@ export class SiderDemo
     }
 
     render() {
-
-
-        return (
-
+       return (
             <Sider
                 collapsible
                 collapsed={this.state.collapsed}
@@ -98,7 +103,7 @@ export class SiderDemo
                         <Icon type="desktop"/>
                         <span>Option 2</span>
                     </Menu.Item>
-                    <Users/>
+                    <Users user={this.props.user}/>
                     <SubMenu
                         key="sub2"
                         title={<span><Icon type="team"/><span>Team</span></span>}
@@ -116,4 +121,5 @@ export class SiderDemo
     }
 }
 
-export default SiderDemo
+
+export default SiderDemo;

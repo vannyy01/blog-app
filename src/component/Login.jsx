@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {Field, reduxForm} from "redux-form";
 import {Link} from "react-router-dom";
 import {connect} from "react-redux";
-//import {login} from "../actions";
 import {Layout} from "antd/lib/index";
 import sha1 from "js-sha1";
 import {Redirect} from 'react-router-dom';
