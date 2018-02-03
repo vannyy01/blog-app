@@ -1,18 +1,23 @@
 import React, {Component} from "react";
 import Row from './Row';
 import {Layout} from "antd/lib/index";
-import {fetchPosts} from "../actions";
+import {fetchPosts, fetchComments} from "../actions";
 import {connect} from 'react-redux';
 import {FETCH_POST} from "../actions";
 import PreloaderIcon, {ICON_TYPE} from 'react-preloader-icon';
-
+import CommentsTree from './Comments';
 const {Content} = Layout;
 
 class Article extends Component {
+    constructor() {
+        super();
+    }
+
     componentWillMount() {
         const {id} = this.props.match.params;
         const fetchParameters = '/post/?s[post_id]=' + id + '&expand=text,author,blog';
         this.props.fetchPosts(fetchParameters, FETCH_POST);
+        this.props.fetchComments(id);
     }
 
     render() {
@@ -53,6 +58,7 @@ class Article extends Component {
                                     <p className="blog-post-meta">Автор: <a
                                         href="#">{post.author.name}</a></p>
                                 </div>
+                                <CommentsTree root={this.props.comments}/>
                             </div>
                         </div>
                     </main>
@@ -62,12 +68,13 @@ class Article extends Component {
     }
 }
 
-const mapStateToProps = ({post}) => {
+const mapStateToProps = ({post, comments}) => {
 
     return {
         post: post.data,
+        comments: comments
     }
 };
 
 
-export default connect(mapStateToProps, {fetchPosts})(Article);
+export default connect(mapStateToProps, {fetchPosts, fetchComments})(Article);

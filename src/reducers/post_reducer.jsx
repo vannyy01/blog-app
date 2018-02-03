@@ -1,32 +1,22 @@
-import {FETCH_POSTS} from "../actions";
+import {FETCH_POSTS, FETCH_TAGS, FETCH_CATEGORY, CREATE_POST} from "../actions";
 import {FETCH_POST} from "../actions";
 import _ from 'lodash';
 
-const initialState = [{
-    post_id: 1,
-    post_name: '' ,
-    short_description: '',
-    rait: 0,
-    author: {
-        id: 0 ,
-        name: ''
-    },
-    blog: {
-        id: 0,
-        name: ''
-    },
-    created_at: '' ,
-    category: [0],
-}];
+const initialState = [];
 
 export function PostReducer(state = initialState, action) {
     switch (action.type) {
         case FETCH_POSTS:
-            return !action.payload.data ? {... state}
+            return !action.payload.data ? {...state}
                 : action.payload.data;
         case FETCH_POST:
             const data = action.payload.data[0];
             return {data};
+        case FETCH_TAGS:
+            return action.payload.data;
+        case FETCH_CATEGORY:
+            return action.payload.data;
+
         default:
             return state;
     }

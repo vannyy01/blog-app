@@ -10,7 +10,6 @@ import AuthService from './client/Auth';
 import {fetchUser} from "./actions";
 import AuthRoutes from './routes/AuthRoutes';
 import AllowedRotes from './routes/AllowedRoutes';
-
 const Auth = new AuthService();
 const {Footer} = Layout;
 
@@ -21,6 +20,8 @@ class App extends Component {
         if (Auth.loggedIn()) {
             setAuth(Auth.getToken());
             props.fetchUser(Auth.getToken())
+        } else {
+            this.props.history.push('/')
         }
     }
 

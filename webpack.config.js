@@ -25,13 +25,13 @@ module.exports = {
                                 "style": true
                             },
                             {
-                                "libraryName": "material-ui",
+                                "libraryName": "semantic-ui-react",
                                 "style": true
                             },
                             {
-                                "libraryName": "material-ui-chip-input",
+                                "libraryName": "add semantic-ui-css",
                                 "style": true
-                            }
+                            },
                         ],
                         ['transform-object-rest-spread'],
                         ['transform-class-properties']
@@ -40,47 +40,86 @@ module.exports = {
                 exclude: /(node_modules)/
             },
             {
-                test: /\.css$/, loaders: ['style-loader', {
-                    loader: "css-loader",
-                    options: {
-                        modules: true, // default is false
-                        sourceMap: true,
-                        importLoaders: 1,
-                        localIdentName: "[name]--[local]--[hash:base64:8]"
-                    },
-
-                },
-                ],
+                test: /\.(scss|sass)$/i,
+                use: [
+                    'style-loader',
+                    'css-loader', // поменять местами с sass-loader
+                    'sass-loader', // поменять местами с css-loader
+                ]
             },
+            {
+                test: /\.css$/, loaders:
+                    ['style-loader', {
+                        loader: "css-loader",
+                        options: {
+                            modules: true, // default is false
+                            sourceMap: true,
+                            importLoaders: 1,
+                            localIdentName: "[name]--[local]--[hash:base64:8]"
+                        },
+
+                    },
+                    ],
+            }
+            ,
+
             {
                 test: /\.less$/,
-                use: [{
-                    loader: "style-loader" // creates style nodes from JS strings
-                }, {
-                    loader: "css-loader" // translates CSS into CommonJS
-                }, {
-                    loader: "less-loader" // compiles Less to CSS
-                }]
+                use:
+                    [{
+                        loader: "style-loader" // creates style nodes from JS strings
+                    }, {
+                        loader: "css-loader" // translates CSS into CommonJS
+                    }, {
+                        loader: "less-loader" // compiles Less to CSS
+                    },
+                    ]
             },
             {
-                test: /\.(gif|png|jpe?g|svg)$/i,
+                test: /\.(eot|otf|webp|ttf|woff|woff2)(\?.*)?$/,
                 use: [
-                    {loader: "file-loader"},
                     {
-                        loader: "image-webpack-loader",
+                        loader: "file-loader",
                         options: {
-                            bypassOnDebug: false,
+                            name: "[name].[hash].[ext]",
+                            publicPath: "/",
+                            outputPath: "assets/font/",
                         },
                     },
                 ],
+            },
+            {
+                test: /\.(gif|png|jpe?g|svg)$/i,
+                use:
+                    [
+                        {loader: "file-loader"},
+                        {
+                            loader: "image-webpack-loader",
+                            options: {
+                                bypassOnDebug: false,
+                            },
+                        },
+                    ],
             }
         ]
     },
     devtool: 'source-map',
-    devServer: {
-        contentBase: path.join(__dirname, 'build'),
-        compress: true,
-        port: 3030,
-        historyApiFallback: true
+    devServer:
+        {
+            contentBase: path.join(__dirname, 'build'),
+            compress:
+                true,
+            port:
+                3030,
+            historyApiFallback:
+                true
+        }
+    ,
+    watchOptions: {
+        ignored: /node_modules/,
+        aggregateTimeout:
+            300,
+        poll:
+            1000
     }
 }
