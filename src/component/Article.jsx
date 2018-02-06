@@ -58,7 +58,7 @@ class Article extends Component {
                                     <p className="blog-post-meta">Автор: <a
                                         href="#">{post.author.name}</a></p>
                                 </div>
-                                <CommentsTree root={this.props.comments}/>
+                                <CommentsTree post_id={this.props.match.params.id} root={this.props.comments}/>
                             </div>
                         </div>
                     </main>

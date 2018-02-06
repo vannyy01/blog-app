@@ -12,6 +12,9 @@ export const GET_USER_INFO = 'get_current_user_info';
 export const UPDATE_USER_INFO = 'update_user_info';
 export const CREATE_BLOG = 'create_blog';
 export const CREATE_POST = 'create_post';
+export const CREATE_COMMENT = 'create comment';
+export const LIKE_COMMENT = 'like comment';
+export const DISLIKE_COMMENT = 'dislike comment';
 
 const ROOT_URL = 'http://api.stud-blog.loc';
 
@@ -50,6 +53,23 @@ export function updateUserInfo(values) {
     }
 }
 
+export function likeComment(id) {
+    const request = axios.put(`${ROOT_URL}/comment/increment`, id);
+    return {
+        type: LIKE_COMMENT,
+        payload: request
+    }
+}
+
+export function dislikeComment(id) {
+    const request = axios.put(`${ROOT_URL}/comment/decrement`, id);
+    return {
+        type: DISLIKE_COMMENT,
+        payload: request
+    }
+}
+
+
 export function createBlog(values, callback) {
     const blog = axios.post(`${ROOT_URL}/blog/create`, values);
 
@@ -71,6 +91,20 @@ export function createPost(values, callback) {
 
     return {
         type: CREATE_POST,
+        payload: request
+    };
+
+}
+
+export function createComment(values, callback) {
+    const request = axios.post(`${ROOT_URL}/comment/create`, values)
+        .then(res => {
+            callback();
+        }).catch(err =>
+            alert("Error" + err));
+
+    return {
+        type: CREATE_COMMENT,
         payload: request
     };
 

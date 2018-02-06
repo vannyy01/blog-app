@@ -13,4 +13,20 @@ export function asyncValidateBlog(value) {
     } else {
         return new Promise(resolve => (0))
     }
-};
+}
+
+export function getStorage(name) {
+    let matches = localStorage.getItem(name) || '[]';
+    return JSON.parse(matches);
+}
+
+export function setStorage(name, item) {
+    let matches = getStorage(name);
+    if (!matches.includes(item)) {
+        matches.push(item);
+        localStorage.setItem(name, JSON.stringify(matches));
+        return true;
+    } else {
+        return false;
+    }
+}
