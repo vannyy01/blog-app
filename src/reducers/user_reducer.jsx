@@ -25,6 +25,8 @@ export function UserReducer(state = initialState, action) {
                 }
             ));
             const info = newData[3]["value"];
+            const avatar = newData[3]["value"]["avatar"];
+            delete newData[3]["value"]["avatar"];
             newData.pop();
             _.map(info, (item, i) => {
                 if (i === 'name') name = "ім'я";
@@ -40,7 +42,7 @@ export function UserReducer(state = initialState, action) {
                 })
             });
             newData.shift();
-            return newData;
+            return {data: newData , avatar: avatar};
         case UPDATE_USER_INFO:
             alert(action.payload.data);
         default:

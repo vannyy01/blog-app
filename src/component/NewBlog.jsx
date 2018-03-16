@@ -50,7 +50,7 @@ class NewBlog extends Component {
                      blur={{min: -1, max: 5}}/>
                 <main role="main" className="container">
                     <div className="row">
-                        <form style={{margin: 'auto', width: 400}} onSubmit={handleSubmit(this.onSubmit.bind(this))}>
+                        <form style={{margin: 'auto',paddingTop: 5, paddingBottom: 15, width: 400}} onSubmit={handleSubmit(this.onSubmit.bind(this))}>
                             <Field
                                 label="Назва блогу"
                                 name="blog_name"

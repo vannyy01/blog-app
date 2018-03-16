@@ -4,7 +4,7 @@ import {Link} from "react-router-dom";
 import {connect} from "react-redux";
 import {Layout} from "antd/lib/index";
 import sha1 from "js-sha1";
-import {Redirect} from 'react-router-dom';
+import {replace} from "../client/withAuth";
 import AuthService from '../client/Auth';
 
 const Auth = new AuthService();
@@ -28,7 +28,6 @@ class Login extends Component {
         getCurrentValue = getCurrentValue.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this.goBack = this.goBack.bind(this);
     }
 
 
@@ -40,16 +39,12 @@ class Login extends Component {
         );
     };
 
-    goBack() {
-       this.props.history.goBack();
-    }
-
     handleFormSubmit(e) {
         e.preventDefault();
         Auth.login({username: this.state.username, password: this.state.password})
-            .then(res => {
-                this.props.history.replace('/');
-            })
+            .then(res =>
+                replace()
+            );
     }
 
     renderField(field) {
@@ -67,9 +62,9 @@ class Login extends Component {
     }
 
     render() {
-
         if (Auth.loggedIn()) {
-            this.goBack();
+            replace();
+            return null;
         } else {
             return (
                 <Content style={{marginTop: 200}}>

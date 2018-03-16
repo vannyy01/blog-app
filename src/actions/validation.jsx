@@ -30,3 +30,9 @@ export function setStorage(name, item) {
         return false;
     }
 }
+
+
+export function checkStorage(name, item) {
+    let matches = getStorage(name);
+    return !matches.includes(item);
+}

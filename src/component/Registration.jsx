@@ -7,8 +7,6 @@ import {connect} from "react-redux";
 import {Field, reduxForm} from "redux-form";
 import AuthService from "../client/Auth";
 
-const FormItem = Form.Item;
-
 const Auth = new AuthService();
 const asyncValidate = (value) => Auth.asyncValidate(value);
 const {Content} = Layout;

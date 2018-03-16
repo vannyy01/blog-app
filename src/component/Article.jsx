@@ -6,6 +6,7 @@ import {connect} from 'react-redux';
 import {FETCH_POST} from "../actions";
 import PreloaderIcon, {ICON_TYPE} from 'react-preloader-icon';
 import CommentsTree from './Comments';
+
 const {Content} = Layout;
 
 class Article extends Component {
@@ -15,14 +16,13 @@ class Article extends Component {
 
     componentWillMount() {
         const {id} = this.props.match.params;
-        const fetchParameters = '/post/?s[post_id]=' + id + '&expand=text,author,blog';
+        const fetchParameters = '/post/?s[post_id]=' + id + '&expand=text,author,blog,tags';
         this.props.fetchPosts(fetchParameters, FETCH_POST);
         this.props.fetchComments(id);
     }
 
     render() {
-        const {post} = this.props;
-        if (!this.props.post) {
+        if (_.isEmpty(this.props.post)) {
             return (
                 <PreloaderIcon
                     type={ICON_TYPE.TAIL_SPIN}
@@ -32,7 +32,8 @@ class Article extends Component {
                     strokeColor="CornflowerBlue "
                     duration={1000}
                 />)
-        } else {
+        }
+        const {post} = this.props;
             return (
                 <Content style={{backgroundColor: 'white'}}>
                     <Row text={post.post_name}
@@ -65,13 +66,11 @@ class Article extends Component {
                 </Content>
             )
         }
-    }
 }
 
 const mapStateToProps = ({post, comments}) => {
-
     return {
-        post: post.data,
+        post,
         comments: comments
     }
 };

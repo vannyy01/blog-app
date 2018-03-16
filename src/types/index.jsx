@@ -19,3 +19,16 @@ export const postType = PropTypes.shape(
         category: PropTypes.array.isRequired,
     }
 );
+
+export const avatarType = PropTypes.string;
+
+export const blogType = PropTypes.shape({
+    avatar: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    short_description: PropTypes.string.isRequired,
+    author: PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+    }),
+});

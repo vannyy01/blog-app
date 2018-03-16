@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Field, reduxForm} from "redux-form";
 import {Button} from 'antd';
 import {connect} from "react-redux";
-import {fetchTags, createPost, fetchBlogs, fetchCategory} from "../actions";
+import {fetchPosts, fetchTags, createPost, fetchBlogs, fetchCategory, FETCH_POST} from "../actions";
 import {Layout} from "antd/lib/index";
 import Row from '../component/Row';
 import {renderTextArea, renderInputField} from '../forms/Fields';
@@ -27,13 +27,45 @@ function asyncValidate(value) {
     }
 }
 
-class PostNew extends Component {
-    constructor() {
-        super();
+class UpdateOwnPost extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            category: [],
+            tags: [],
+            listTags: [],
+            open: true
+        }
     }
 
     componentWillMount() {
+        const {id} = this.props.match.params;
+        const fetchParameters = '/post/?s[post_id]=' + id + '&expand=text,author,blog,tags';
+        this.props.fetchPosts(fetchParameters, FETCH_POST);
         this.props.fetchBlogs();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (this.props.post !== nextProps.post) {
+            this.setState({
+                category: nextProps.post.category,
+                tags: nextProps.post.tags
+            });
+        }
+        // dima@nebo15.com
+        if(this.props.listTags.length !== nextProps.listTags.length) {
+            console.log(nextProps.listTags);
+           // this.setState({listTags: nextProps.listTags});
+            return true;
+        }
+
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (this.state.tags !== nextState.tags) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -72,21 +104,21 @@ class PostNew extends Component {
         );
     };
 
-    renderInput = ({input, meta, data, hintText, floatingLabelText, label}) => {
+    renderInput = ({input, meta, data, defaultValue, hintText, floatingLabelText, label}) => {
         const {touched, error} = meta;
         const className = `form-group ${touched && error ? "has-danger" : ""}`;
 
+        input.value = this.state.tags;
+        console.log(data, this.props.listTags);
         return (
             <div className={className}>
                 <label>{label}</label>
                 <ControlledChipInput
                     {...input}
+                    defaultValue={defaultValue}
                     allowDuplicates={false}
                     value={input.value || []}
-                    onChange={
-                        chip =>
-                            console.log(chip)
-                    }
+                    onClose = {() => this.setState({open: !this.state.open})}
                     onRequestAdd={(addedChip) => {
                         let chip = {
                             tag: addedChip.tag.trim()
@@ -94,22 +126,25 @@ class PostNew extends Component {
                                 ? addedChip.id :
                                 addedChip.id.trim()
                         };
+                        this.props.fetchTags(chip.tag);
                         if (chip.tag.length >= 3) {
-                            let values = input.value || [];
+                            let values = this.state.tags;
                             values = values.slice();
                             values.push(chip);
+                            this.setState({tags: values});
                             input.onChange(values);
                         }
                     }}
-                    onUpdateInput={(chip) => this.props.fetchTags(chip)}
+                    onUpdateInput={(chip) => chip.trim().length >= 1 ? this.props.fetchTags(chip) : null}
                     onRequestDelete={(deletedChip) => {
-                        let values = input.value || [];
+                        let values = this.state.tags;
 
                         function findCherries(item) {
                             return item.id !== deletedChip;
                         }
 
                         values = values.filter(findCherries);
+                        this.setState({tags: values});
                         input.onChange(values);
                     }}
 
@@ -118,10 +153,10 @@ class PostNew extends Component {
                         item.trim();
                         if (item && item.length >= 3) {
                             let val = {tag: item, id: item};
-                            let values = input.value || [];
+                            let values = this.state.tags;
                             values = values.slice();
-                            console.log(val);
                             values.push(val);
+                            this.setState({tags: values});
                             input.onBlur(values);
                         }
                     }
@@ -139,9 +174,19 @@ class PostNew extends Component {
 
         )
     };
-    renderCategoryInput = ({input, meta, data, placeholder, label}) => {
+    renderCategoryInput = ({input, meta, defaultValue, data, placeholder, label}) => {
         const {touched, error} = meta;
         const className = `form-group ${touched && error ? "has-danger" : ""}`;
+        let value = _.isEmpty(this.state.category) ? [] : this.state.category;
+        let values = [];
+        value.map(elem => {
+                let temp = {key: elem.value, label: elem.text};
+                values.push(temp);
+            }
+        );
+        input.value = _.isEmpty(input.value) ? [] : input.value;
+        input.value = [...input.value, ...values];
+        this.setState({category: []});
         return (
             <div className={className}>
                 <label>{label}</label>
@@ -155,7 +200,6 @@ class PostNew extends Component {
                     onSearch={(value) => this.props.fetchCategory(value)}
                     onChange={(value) => {
                         input.onChange(value);
-
                     }}
                     style={{width: '100%'}}
 
@@ -173,9 +217,10 @@ class PostNew extends Component {
 
         )
     };
-    renderSelectField = ({input, meta, data, label, placeholder}) => {
+    renderSelectField = ({input, meta, data, defaultValue, label, placeholder}) => {
         const {touched, error} = meta;
         const className = `form-group ${touched && error ? "has-danger" : ""}`;
+        const value = _.isEmpty(defaultValue) ? "" : defaultValue.id;
         return (
             <div className={className}>
                 <label>{label}</label>
@@ -183,6 +228,7 @@ class PostNew extends Component {
                     showSearch
                     style={{width: 400}}
                     placeholder={placeholder}
+                    defaultValue={value}
                     optionFilterProp="children"
                     onChange={value => {
                         let values = input.value || [];
@@ -208,10 +254,10 @@ class PostNew extends Component {
 
     render() {
         const {handleSubmit, pristine, reset, submitting} = this.props;
-        if (!_.isEmpty(this.props.blogs)) {
+        if (!_.isEmpty(this.props.blogs) && !_.isEmpty(this.props.post)) {
             return (
                 <Content style={{backgroundColor: 'white'}}>
-                    <Row text="Створити новий допис"
+                    <Row text="Редагувати власний допис"
                          img={'https://images.pexels.com/photos/296881/pexels-photo-296881.jpeg?w=940&h=650&auto=compress&cs=tinysrgb'}
                          blur={{min: -1, max: 5}}/>
                     <main role="main" className="container">
@@ -221,12 +267,14 @@ class PostNew extends Component {
                                 <Field
                                     placeholder="Виберіть ваш блог"
                                     data={this.props.blogs}
+                                    defaultValue={this.props.post.blog}
                                     label="Виберіть ваш блог"
                                     name="blog_id"
                                     component={this.renderSelectField}
                                 />
                                 <Field
                                     label="Назва допису"
+                                    data={this.props.post.post_name}
                                     name="post_name"
                                     placeholder="Введіть назву допису"
                                     component={renderInputField}
@@ -235,6 +283,7 @@ class PostNew extends Component {
                                     label="Категорії"
                                     placeholder="Оберіть категорії"
                                     data={this.props.categories}
+                                    defaultValue={this.props.post.category}
                                     name="category"
                                     component={this.renderCategoryInput}
                                     hintText='...'
@@ -242,12 +291,14 @@ class PostNew extends Component {
                                 />
                                 <Field
                                     label="Короткий опис"
+                                    data={this.props.post.short_description}
                                     name="short_description"
                                     placeholder="Введіть короткий опис"
                                     component={renderTextArea}
                                 />
                                 <Field
                                     label="Текст допису"
+                                    data={this.props.post.text}
                                     name="post_text"
                                     placeholder="Введіть текст допису"
                                     autosize={{minRows: 2, maxRows: 6}}
@@ -255,7 +306,8 @@ class PostNew extends Component {
                                 />
                                 <Field
                                     label="Теги"
-                                    data={this.props.tags}
+                                    defaultValue={this.props.post.tags}
+                                    data={this.props.listTags}
                                     name="tags"
                                     component={this.renderInput}
                                     hintText='...'
@@ -305,9 +357,10 @@ function validate(values) {
     return errors;
 }
 
-const mapStateToProps = ({post, blog: {blogs}, category}) => {
+const mapStateToProps = ({post, list, blog: {blogs}, category}) => {
     return {
-        tags: post || [],
+        post,
+        listTags: list,
         blogs,
         categories: category || [],
     }
@@ -318,4 +371,4 @@ export default reduxForm({
     validate,
     asyncValidate,
     asyncBlurFields: ['post_name']
-})(connect(mapStateToProps, {createPost, fetchCategory, fetchTags, fetchBlogs})(PostNew));
+})(connect(mapStateToProps, {createPost, fetchCategory, fetchPosts, fetchTags, fetchBlogs})(UpdateOwnPost));

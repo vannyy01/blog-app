@@ -1,3 +1,8 @@
+.postWrapper {
+  margin: 0 5% 0 5%;
+  padding: 0.5em 0 0.2em 0;
+  width: 90%;
+}
 
 .ui.comments .comment .comments {
   margin: 0 0 .5em .5em;
@@ -5,5 +10,19 @@
 }
 
 .area-form {
-      height: 70px;
+  height: 70px;
+}
+
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
+}
+
+div[class^=theme--avatar] {
+  padding-right: 40px;
 }

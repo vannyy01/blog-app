@@ -10,6 +10,8 @@ import AuthService from './client/Auth';
 import {fetchUser} from "./actions";
 import AuthRoutes from './routes/AuthRoutes';
 import AllowedRotes from './routes/AllowedRoutes';
+import {Redirect} from 'react-router-dom';
+
 const Auth = new AuthService();
 const {Footer} = Layout;
 
@@ -17,38 +19,47 @@ class App extends Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            isAuth: false
+        }
+    }
+
+    componentWillMount() {
         if (Auth.loggedIn()) {
             setAuth(Auth.getToken());
-            props.fetchUser(Auth.getToken())
+            this.setState({isAuth: true});
+            this.props.fetchUser(Auth.getToken())
         } else {
-            this.props.history.push('/')
+            return <Redirect to={{
+                pathname: '/',
+            }}/>
         }
     }
 
     render() {
         return (
-                <BrowserRouter>
-                        <Layout>
-                            <SliderDemo user={this.props.user}/>
-                            <Layout>
-                                <Header/>
-                                <main>
-                                    <Switch/>
-                                    <AllowedRotes/>
-                                    <AuthRoutes/>
-                                    <Switch/>
-                                </main>
-                                <Footer>Footer</Footer>
-                            </Layout>
-                        </Layout>
-                </BrowserRouter>
+            <BrowserRouter>
+                <Layout style={{height: '100%'}}>
+                    <SliderDemo user={this.props.user}/>
+                    <Layout>
+                        <Header auth={this.state.isAuth}/>
+                        <main>
+                            <Switch/>
+                            <AllowedRotes/>
+                            <AuthRoutes/>
+                            <Switch/>
+                        </main>
+                        <Footer>Footer</Footer>
+                    </Layout>
+                </Layout>
+            </BrowserRouter>
         );
     }
 }
 
-const mapStateToProps = ({login}) => {
+const mapStateToProps = ({login: {user}}) => {
     return {
-        user: login
+        user: user
     }
 };
 export default connect(mapStateToProps, {fetchUser})(App);

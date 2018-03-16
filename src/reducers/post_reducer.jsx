@@ -1,4 +1,4 @@
-import {FETCH_POSTS, FETCH_TAGS, FETCH_CATEGORY, CREATE_POST} from "../actions";
+import {FETCH_POSTS, FETCH_TAGS, FETCH_CATEGORY, CREATE_POST, FETCH_LIKES_POSTS} from "../actions";
 import {FETCH_POST} from "../actions";
 import _ from 'lodash';
 
@@ -10,10 +10,7 @@ export function PostReducer(state = initialState, action) {
             return !action.payload.data ? {...state}
                 : action.payload.data;
         case FETCH_POST:
-            const data = action.payload.data[0];
-            return {data};
-        case FETCH_TAGS:
-            return action.payload.data;
+            return action.payload.data[0];
         case FETCH_CATEGORY:
             return action.payload.data;
 

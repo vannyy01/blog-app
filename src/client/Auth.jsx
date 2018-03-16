@@ -26,7 +26,7 @@ export default class AuthService {
         });
     }
 
-    signUp(values, callback){
+    signUp(values, callback) {
         delete values.confirmPassword;
         return axios.post(`${this.domain}/profile/create`, values)
             .then(this._checkStatus).then(res => {
@@ -36,12 +36,23 @@ export default class AuthService {
                 alert('Помилка реєстрації');
             });
     }
+
+    checkUserStatusOnServer = () => {
+        return axios.get(`${this.domain}/site/active`)
+    };
+
     loggedIn() {
         // Checks if there is a saved token and it's still valid
         const token = this.getToken(); // GEtting token from localstorage
-        return !_.isEmpty(token) && token !== undefined && token.length === 32; // handwaiving here
+        const date = parseInt(this.getAuthDate());
+        if (date > new Date().getTime()) {
+            return !_.isEmpty(token) && token !== undefined && token.length === 32; // handwaiving here
+        } else {
+            this.logout();
+            return false;
+        }
     }
-    
+
 
     /**
      *
@@ -68,7 +79,14 @@ export default class AuthService {
     setToken(idToken) {
 
         // Saves user token to localStorage
-        localStorage.setItem('AuthTOken', idToken)
+        const date = new Date().getTime() + 1000 * 60 * 60 *24;
+        localStorage.setItem('AuthTOken', idToken);
+        localStorage.setItem('AuthDate', date.toString());
+    }
+
+    getAuthDate() {
+        // Retrieves the user token from localStorage
+        return localStorage.getItem('AuthDate')
     }
 
     getToken() {
@@ -76,7 +94,8 @@ export default class AuthService {
         return localStorage.getItem('AuthTOken')
     }
 
-    logout(callback) {
+    logout(callback = () => {
+    }) {
         // Clear user token and profile data from localStorage
         callback();
         localStorage.removeItem('AuthTOken');

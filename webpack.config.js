@@ -5,7 +5,7 @@ module.exports = {
 
     output: {
         path: path.resolve(__dirname, "build"),
-        filename: 'bundle.js'
+        filename: 'bundle.js',
     },
     resolve: {extensions: [".ts", ".tsx", ".jsx", ".js", ".json"]},
     module: {
@@ -92,7 +92,14 @@ module.exports = {
                 test: /\.(gif|png|jpe?g|svg)$/i,
                 use:
                     [
-                        {loader: "file-loader"},
+                        {
+                            loader: 'file-loader',
+                            options: {
+                                name: '[name].[ext]',
+                                publicPath:  '/',
+                                outputPath: 'assets/img/',
+                            }
+                        },
                         {
                             loader: "image-webpack-loader",
                             options: {

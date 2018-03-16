@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {Comment, Header, Icon} from 'semantic-ui-react';
 import {likeComment, dislikeComment} from "../actions";
-import {setStorage, getStorage} from "../actions/validation";
+import {setStorage} from "../actions/validation";
 import {CreateCommentForm, CreateAnswerForm} from '../forms/CommentForm';
 import '../style.global.scss';
 import '../index.global.scss';
@@ -66,10 +66,11 @@ class CommentsTree extends Component {
     renderBookmarks = (comment) => {
         if (comment.child) {
             let {rait} = comment;
+            const Image = require("../../user-images/" + comment.avatar);
             return (
                 <Comment key={comment.comment_id}>
                     <Comment.Avatar
-                        src='https://openclipart.org/image/300px/svg_to_png/215819/Linux-Avatar.png&disposition=attachment'/>
+                        src={Image}/>
                     <Comment.Content>
                         <Comment.Author as='a'>{comment.user.name}
                         </Comment.Author>

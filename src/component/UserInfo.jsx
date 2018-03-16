@@ -7,9 +7,12 @@ import AuthService from "../client/Auth";
 import {Input, Table, Popconfirm} from 'antd'
 import {DatePicker} from 'antd';
 import moment from 'moment';
+import ImageUpload from '../forms/ImageUpload';
+import {Select} from 'antd';
 
 const Auth = new AuthService();
 const {Content} = Layout;
+
 
 const EditableCell = ({editable, value, onChange, record, column}) => (
     <div>
@@ -20,19 +23,37 @@ const EditableCell = ({editable, value, onChange, record, column}) => (
                                 onChange={(e, val) => onChange(val)}/>
                     :
                     <Input style={{margin: '-5px 0'}} value={value}
-                           onChange={e => onChange(e.target.value)}/>)
+                           onChange={(val) => onChange(val)}/>)
             : value
         }
     </div>
 );
 
-class UserInfo extends Component {
+
+const EditableMale = ({editable, value, onChange, record, column}) => (
+    <div>
+        {editable
+            ? <div>
+                <Select defaultValue={value} style={{width: 130, height: 26, margin: '-5px 0'}}
+                        onChange={(val) => onChange(val)}>
+                    <Select.Option value="чоловік">чоловік</Select.Option>
+                    <Select.Option value="жінка">жінка</Select.Option>
+                </Select>
+            </div>
+            : value
+        }
+    </div>
+);
+
+
+class UserInfo
+    extends Component {
 
     constructor(props) {
         super(props);
         this.columns = [{
             dataIndex: 'row',
-            width: '15%',
+            width: '18%',
             render: (text, record) => this.renderColumns(text, record, 'row'),
         }, {
             dataIndex: 'value',
@@ -68,13 +89,10 @@ class UserInfo extends Component {
 
 
     componentWillReceiveProps(nextProps) {
+
         if (this.props.user !== nextProps.user) {
             this.setState({cacheData: nextProps.user.map(item => ({...item}))});
         }
-    }
-
-    componentDidUpdate() {
-
     }
 
     renderColumns(text, record, column) {
@@ -84,7 +102,16 @@ class UserInfo extends Component {
                 editable={false}
                 value={text}
             />
-        } else {
+        } else if (record.key === 'male' && column === 'value') {
+            return <EditableMale
+                editable={record.editable}
+                record={record.key}
+                column={column}
+                value={text}
+                onChange={(value, e) => this.handleChange(value, e, record.key, column)}
+            />
+        }
+        else {
             return (
                 <EditableCell
                     editable={record.editable}
@@ -98,7 +125,6 @@ class UserInfo extends Component {
     }
 
     handleChange(value, e, key, column) {
-        console.log(value);
         const newData = [...this.props.user];
         const target = newData.filter(item => key === item.key)[0];
         if (target) {
@@ -125,7 +151,6 @@ class UserInfo extends Component {
             this.setState({data: newData});
             this.cacheData = newData.map(item => ({...item}));
             this.props.updateUserInfo(patch);
-            console.log(patch);
         }
     }
 
@@ -140,8 +165,7 @@ class UserInfo extends Component {
     }
 
     render() {
-        const {user} = this.props;
-        if (!this.props.user[0]) {
+        if (this.props.user === undefined) {
             return (
                 <Content style={{marginTop: 150, backgroundColor: 'white'}}>
                     <PreloaderIcon
@@ -149,7 +173,7 @@ class UserInfo extends Component {
                         size={70}
                         style={{margin: 'auto', zIndex: 1100}}
                         strokeWidth={8}
-                        strokeColor="CornflowerBlue "
+                        strokeColor="CornflowerBlue"
                         duration={1000}
                     />
                 </Content>
@@ -157,10 +181,20 @@ class UserInfo extends Component {
         } else {
             return (
                 <Content style={{marginTop: 120}}>
-                    <main role="main" className="container"
+                    <main role="main" className="container-fluid"
                           style={{textAlign: 'left', margin: '5px 10px 5px 10px', backgroundColor: 'white'}}>
-                        <Table pagination={false} style={{width: 620, marginLeft: 'auto'}} showHeader={false} size="small" dataSource={this.props.user}
-                               columns={this.columns}/>
+                        <div className="row">
+                            <div className="col-sm-8">
+                                <h1>Профіль</h1>
+                                <ImageUpload history={this.props.history} avatar={this.props.avatar}/>
+                                <Table pagination={false} style={{
+                                    width: 610,
+                                    paddingBottom: 15
+                                }} showHeader={false}
+                                       size="small" dataSource={this.props.user}
+                                       columns={this.columns}/>
+                            </div>
+                        </div>
                     </main>
                 </Content>
             )
@@ -168,10 +202,15 @@ class UserInfo extends Component {
     }
 }
 
+
 const mapStateToProps = ({user}) => {
     return {
-        user: user,
-        cacheData: user,
+        user: user.data,
+        cacheData: user.data,
+        avatar: user.avatar,
     }
 };
+
 export default connect(mapStateToProps, {fetchUserInfo, updateUserInfo})(UserInfo);
+
+

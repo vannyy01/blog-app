@@ -20,18 +20,6 @@ class Main extends Component {
         this.props.fetchPosts();
     }
 
-    handleCheckInfo() {
-        axios.get(`${Auth.domain}/post/test`)
-            .then(
-                res => console.log(res)
-            )
-    }
-
-    handleLogout() {
-        Auth.logout();
-        this.props.history.replace('/login');
-    }
-
     renderPosts() {
         return _.map(this.props.posts, post => {
             return (
@@ -52,7 +40,7 @@ class Main extends Component {
                         <h1>Останні дописи</h1>
                         <hr/>
                     </div>
-                    <div className={"postWrapper"}>
+                    <div className="row postWrapper">
                         {this.renderPosts()}
                     </div>
                 </Content>
@@ -71,8 +59,8 @@ const mapStateToProps = ({post}) => {
 
 export default connect(mapStateToProps, {fetchPosts})(Main);
 
-const AuthButton = withRouter(({ history }) => (
-    Auth.loggedIn()  ? (
+const AuthButton = withRouter(({history}) => (
+    Auth.loggedIn() ? (
         <p>
             Welcome! <button onClick={() => {
             Auth.logout(() => history.push('/'))

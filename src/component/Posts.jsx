@@ -14,7 +14,7 @@ const {Content} = Layout;
 class Main extends Component {
 
     componentDidMount() {
-        this.props.fetchPosts();
+        this.props.fetchPosts('post/?expand=author,blog,avatar&sort=-rait');
 
     }
 

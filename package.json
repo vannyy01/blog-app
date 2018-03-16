@@ -31,6 +31,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-icons": "^2.2.7",
+    "react-images-uploader": "^1.1.0",
     "react-parallax": "^1.6.0",
     "react-preloader-icon": "^0.1.1",
     "react-redux": "^5.0.6",
