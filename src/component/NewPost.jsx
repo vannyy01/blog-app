@@ -5,10 +5,10 @@ import {connect} from "react-redux";
 import {fetchTags, createPost, fetchBlogs, fetchCategory} from "../actions";
 import {Layout} from "antd/lib/index";
 import Row from '../component/Row';
-import {renderTextArea, renderInputField} from '../forms/Fields';
+import {renderTextArea, renderInputField, renderChipInput} from '../forms/Fields';
 import axios from "axios/index";
-import ControlledChipInput from 'material-ui-chip-input';
 import {Select, Spin} from 'antd';
+import {difference} from "../actions/helpers";
 
 const Option = Select.Option;
 
@@ -22,24 +22,21 @@ function asyncValidate(value) {
                 throw {post_name: 'Назва блогу зайнята'}
             }
         });
-    } else {
-        return new Promise(resolve => (0))
     }
+    return new Promise(resolve => (0));
+
 }
 
 class PostNew extends Component {
-    constructor() {
-        super();
-    }
 
     componentWillMount() {
         this.props.fetchBlogs();
     }
 
-    /**
-     *
-     * @param values
-     */
+    componentWillReceiveProps(nextProps) {
+        return difference(this.props.tags, nextProps.tags);
+    }
+
     onSubmit = (values) => {
         let items = values;
         let {tags, category} = values;
@@ -68,77 +65,10 @@ class PostNew extends Component {
         items.short_description.trim();
         values.category = [];
         this.props.createPost(items, () =>
-            this.props.history.push("/post")
+            this.props.history.push("/post/view")
         );
     };
 
-    renderInput = ({input, meta, data, hintText, floatingLabelText, label}) => {
-        const {touched, error} = meta;
-        const className = `form-group ${touched && error ? "has-danger" : ""}`;
-
-        return (
-            <div className={className}>
-                <label>{label}</label>
-                <ControlledChipInput
-                    {...input}
-                    allowDuplicates={false}
-                    value={input.value || []}
-                    onChange={
-                        chip =>
-                            console.log(chip)
-                    }
-                    onRequestAdd={(addedChip) => {
-                        let chip = {
-                            tag: addedChip.tag.trim()
-                            , id: typeof addedChip.id === 'number'
-                                ? addedChip.id :
-                                addedChip.id.trim()
-                        };
-                        if (chip.tag.length >= 3) {
-                            let values = input.value || [];
-                            values = values.slice();
-                            values.push(chip);
-                            input.onChange(values);
-                        }
-                    }}
-                    onUpdateInput={(chip) => this.props.fetchTags(chip)}
-                    onRequestDelete={(deletedChip) => {
-                        let values = input.value || [];
-
-                        function findCherries(item) {
-                            return item.id !== deletedChip;
-                        }
-
-                        values = values.filter(findCherries);
-                        input.onChange(values);
-                    }}
-
-                    onBlur={(event) => {
-                        let item = event.target.value;
-                        item.trim();
-                        if (item && item.length >= 3) {
-                            let val = {tag: item, id: item};
-                            let values = input.value || [];
-                            values = values.slice();
-                            console.log(val);
-                            values.push(val);
-                            input.onBlur(values);
-                        }
-                    }
-                    }
-                    dataSource={data}
-                    dataSourceConfig={{text: 'tag', value: 'id'}}
-                    hintText={hintText}
-                    floatingLabelText={floatingLabelText}
-                    style={{width: 400}}
-                />
-                <div className="text-help">
-                    {touched && error && <span style={{color: 'red'}}>{error}</span>}
-                </div>
-            </div>
-
-        )
-    };
     renderCategoryInput = ({input, meta, data, placeholder, label}) => {
         const {touched, error} = meta;
         const className = `form-group ${touched && error ? "has-danger" : ""}`;
@@ -255,9 +185,10 @@ class PostNew extends Component {
                                 />
                                 <Field
                                     label="Теги"
+                                    fetchTags = {this.props.fetchTags}
                                     data={this.props.tags}
                                     name="tags"
-                                    component={this.renderInput}
+                                    component={renderChipInput}
                                     hintText='...'
                                     floatingLabelText='Теги'/>
                                 <Button disabled={submitting} type="primary"
@@ -269,11 +200,10 @@ class PostNew extends Component {
                     </main>
                 </Content>
             );
-        } else {
-            return (
-                <div>...Loading</div>
-            )
         }
+        return (
+            <div>...Loading</div>
+        )
     }
 }
 
@@ -300,14 +230,12 @@ function validate(values) {
         errors.tags = "Введіть теги";
     }
 
-    // If errors is empty, the form is fine to submit
-    // If errors has *any* properties, redux form assumes form is invalid
     return errors;
 }
 
-const mapStateToProps = ({post, blog: {blogs}, category}) => {
+const mapStateToProps = ({list, blog: {blogs}, category}) => {
     return {
-        tags: post || [],
+        tags: list,
         blogs,
         categories: category || [],
     }

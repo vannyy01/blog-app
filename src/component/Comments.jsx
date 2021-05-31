@@ -125,7 +125,7 @@ class CommentsTree extends Component {
                             {
                                 _.map(comment.child,
                                     child => {
-                                        if (comment.comment_id = child.parent_id)
+                                        if (comment.comment_id === child.parent_id)
                                             return this.renderBookmarks(child)
                                     }
                                 )

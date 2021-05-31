@@ -10,6 +10,7 @@ import AuthService from "../client/Auth";
 const Auth = new AuthService();
 const asyncValidate = (value) => Auth.asyncValidate(value);
 const {Content} = Layout;
+const FormItem = Form.Item;
 const formItemLayout = {
     labelCol: {
         xs: {span: 24},

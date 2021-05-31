@@ -47,19 +47,21 @@ class Login extends Component {
             );
     }
 
-    renderField(field) {
+    renderField = (field) =>{
         const {meta: {touched, error}} = field;
         const className = `form-group ${touched && error ? "has-danger" : ""}`;
         return (
             <div className={className}>
                 <label>{field.label}</label>
-                <input className="form-control" type="text" {...field.input} />
+                {field.password ? <input className="form-control" type="password" {...field.input} />
+                : <input className="form-control" type="text" {...field.input} />
+                }
                 <div className="text-help">
                     {touched && error && <span style={{color: 'red'}}>{error}</span>}
                 </div>
             </div>
         );
-    }
+    };
 
     render() {
         if (Auth.loggedIn()) {
@@ -82,8 +84,9 @@ class Login extends Component {
                                 name="password"
                                 onChange={this.handleChange}
                                 component={this.renderField}
+                                password={true}
                             />
-                            <button type="submit" className="btn btn-primary">Submit</button>
+                            <button type="submit" style={{marginRight: '1em'}} className="btn btn-primary">Submit</button>
                             <Link to="/" className="btn btn-danger">Cancel</Link>
                         </form>
                     </div>

@@ -1,12 +1,11 @@
 import React, {Component} from "react";
 import Row from './Row';
 import {Layout} from "antd/lib/index";
-import {fetchPosts, fetchComments} from "../actions";
+import {fetchPost, fetchComments} from "../actions";
 import {connect} from 'react-redux';
-import {FETCH_POST} from "../actions";
 import PreloaderIcon, {ICON_TYPE} from 'react-preloader-icon';
 import CommentsTree from './Comments';
-
+import {brto} from "../actions/helpers";
 const {Content} = Layout;
 
 class Article extends Component {
@@ -14,29 +13,18 @@ class Article extends Component {
         super();
     }
 
-    componentWillMount() {
+    componentDidMount() {
         const {id} = this.props.match.params;
         const fetchParameters = '/post/?s[post_id]=' + id + '&expand=text,author,blog,tags';
-        this.props.fetchPosts(fetchParameters, FETCH_POST);
+        this.props.fetchPost(fetchParameters);
         this.props.fetchComments(id);
     }
 
     render() {
-        if (_.isEmpty(this.props.post)) {
-            return (
-                <PreloaderIcon
-                    type={ICON_TYPE.TAIL_SPIN}
-                    size={70}
-                    style={{margin: 'auto', zIndex: 1100}}
-                    strokeWidth={8}
-                    strokeColor="CornflowerBlue "
-                    duration={1000}
-                />)
-        }
-        const {post} = this.props;
+        if (!_.isEmpty(this.props.post)) {
             return (
                 <Content style={{backgroundColor: 'white'}}>
-                    <Row text={post.post_name}
+                    <Row text={this.props.post.post_name}
                          img={'https://www.virginexperiencedays.co.uk/content/img/product/large/manchester-city-football-club-03163533.jpg'}
                          blur={{min: -1, max: 5}}/>
                     <main role="main" className="container"
@@ -45,19 +33,19 @@ class Article extends Component {
                         <div className="row">
                             <div className="col-sm-8 blog-main">
                                 <div className="blog-post">
-                                    <h2 className="blog-post-title">{post.post_name}</h2>
-                                    <p className="blog-post-meta">{post.created_at} by <a
-                                        href="#">{post.blog.name}</a></p>
+                                    <h2 className="blog-post-title">{this.props.post.post_name}</h2>
+                                    <p className="blog-post-meta">{this.props.post.created_at} by <a
+                                        href="#">{this.props.post.blog.name}</a></p>
                                     <hr/>
                                 </div>
                                 <div>
-                                    <p>
-                                        {post.text}
-                                    </p>
+                                        {_.map(brto(this.props.post.text), (par, index) => {
+                                            return <p key={index}>{par}<br/></p>;
+                                        })}
                                 </div>
                                 <div>
                                     <p className="blog-post-meta">Автор: <a
-                                        href="#">{post.author.name}</a></p>
+                                        href="#">{this.props.post.author.name}</a></p>
                                 </div>
                                 <CommentsTree post_id={this.props.match.params.id} root={this.props.comments}/>
                             </div>
@@ -66,14 +54,22 @@ class Article extends Component {
                 </Content>
             )
         }
+       return ( <PreloaderIcon
+            type={ICON_TYPE.TAIL_SPIN}
+            size={70}
+            style={{margin: 'auto', zIndex: 1100}}
+            strokeWidth={8}
+            strokeColor="CornflowerBlue "
+            duration={1000}
+        />);
+        }
 }
 
-const mapStateToProps = ({post, comments}) => {
+const mapStateToProps = ({article, comments}) => {
     return {
-        post,
-        comments: comments
+        post: article, comments
     }
 };
 
 
-export default connect(mapStateToProps, {fetchPosts, fetchComments})(Article);
+export default connect(mapStateToProps, {fetchPost, fetchComments})(Article);

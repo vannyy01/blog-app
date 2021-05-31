@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {getStorage, setStorage} from "./validation";
+import {getStorage} from "./validation";
 
 export const FETCH_POSTS = 'fetch_posts';
 export const FETCH_LIKES_POSTS = 'fetch_likes_posts';
@@ -28,6 +28,14 @@ export function fetchPosts(parameters = 'post/?expand=author,blog,avatar&sort=-r
     const request = axios.get(`${ROOT_URL}/` + parameters);
     return {
         type: FETCH,
+        payload: request
+    };
+}
+
+export function fetchPost(parameters) {
+    const request = axios.get(`${ROOT_URL}/` + parameters);
+    return {
+        type: FETCH_POST,
         payload: request
     };
 }

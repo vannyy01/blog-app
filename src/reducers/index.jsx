@@ -7,6 +7,7 @@ import {BlogReducer} from "./blog_reducer";
 import {CategoryReducer} from "./category_reducer";
 import {CommentsReducer} from "./com_reducer";
 import {ListReducer} from "./list_reducer";
+import {ArticleReducer} from "./article_reducer";
 
 const rootReducer = combineReducers({
     post: PostReducer,
@@ -16,7 +17,8 @@ const rootReducer = combineReducers({
     blog: BlogReducer,
     category: CategoryReducer,
     comments: CommentsReducer,
-    list: ListReducer
+    list: ListReducer,
+    article: ArticleReducer
 });
 
 export default rootReducer;

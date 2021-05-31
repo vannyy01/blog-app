@@ -54,7 +54,16 @@ class Head extends Component {
                                 <Icon spin={this.state.selectedKey.includes('3')} type="heart"
                                       style={{fontSize: 20, color: 'red'}}/>
                             </Link>
-                        </Menu.Item> : null
+                        </Menu.Item>
+                        : null
+                        }
+                    {this.props.auth ?
+                        <Menu.Item key="4">
+                            <Link to={`/post/user/create`}>
+                                <Icon spin={this.state.selectedKey.includes('4')} type="plus"/>
+                            </Link>
+                        </Menu.Item>
+                        : null
                     }
                 </Menu>
             </Header>

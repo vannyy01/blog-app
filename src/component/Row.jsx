@@ -4,7 +4,7 @@ import {Parallax} from 'react-parallax';
 
 const insideStyles = {
     fontSize: 36,
-    color: 'White',
+    color: '#000000',
     fontWeight: 700,
     padding: 20,
     position: 'absolute',
@@ -21,7 +21,7 @@ const Row = (props) => {
         }}>
             <Parallax bgImage={props.img} blur={props.blur}>
                 <div style={{height: 614}}>
-                    <div style={insideStyles}>{props.text}</div>
+                    <p style={insideStyles}>{props.text}</p>
                 </div>
             </Parallax>
         </div>

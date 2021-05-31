@@ -5,10 +5,11 @@ import {connect} from "react-redux";
 import {fetchPosts, fetchTags, createPost, fetchBlogs, fetchCategory, FETCH_POST} from "../actions";
 import {Layout} from "antd/lib/index";
 import Row from '../component/Row';
-import {renderTextArea, renderInputField} from '../forms/Fields';
+import {renderTextArea, renderInputField, renderChipInput} from '../forms/Fields';
 import axios from "axios/index";
 import ControlledChipInput from 'material-ui-chip-input';
 import {Select, Spin} from 'antd';
+import {difference} from "../actions/helpers";
 
 const Option = Select.Option;
 
@@ -28,13 +29,13 @@ function asyncValidate(value) {
 }
 
 class UpdateOwnPost extends Component {
-    constructor(props) {
-        super(props);
+    constructor() {
+        super();
         this.state = {
             category: [],
             tags: [],
             listTags: [],
-            open: true
+            open: true,
         }
     }
 
@@ -51,27 +52,16 @@ class UpdateOwnPost extends Component {
                 category: nextProps.post.category,
                 tags: nextProps.post.tags
             });
-        }
-        // dima@nebo15.com
-        if(this.props.listTags.length !== nextProps.listTags.length) {
-            console.log(nextProps.listTags);
-           // this.setState({listTags: nextProps.listTags});
             return true;
         }
-
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        if (this.state.tags !== nextState.tags) {
+        if(this.state.open && difference(this.props.listTags, nextProps.listTags)){
+            this.setState({open: false, listTags: nextProps.listTags});
+            this.props.post.tags = [];
             return true;
         }
-        return false;
+        return difference(this.props.listTags, nextProps.listTags);
     }
 
-    /**
-     *
-     * @param values
-     */
     onSubmit = (values) => {
         let items = values;
         let {tags, category} = values;
@@ -100,80 +90,10 @@ class UpdateOwnPost extends Component {
         items.short_description.trim();
         values.category = [];
         this.props.createPost(items, () =>
-            this.props.history.push("/post")
+            this.props.history.push("/post/view")
         );
     };
-
-    renderInput = ({input, meta, data, defaultValue, hintText, floatingLabelText, label}) => {
-        const {touched, error} = meta;
-        const className = `form-group ${touched && error ? "has-danger" : ""}`;
-
-        input.value = this.state.tags;
-        console.log(data, this.props.listTags);
-        return (
-            <div className={className}>
-                <label>{label}</label>
-                <ControlledChipInput
-                    {...input}
-                    defaultValue={defaultValue}
-                    allowDuplicates={false}
-                    value={input.value || []}
-                    onClose = {() => this.setState({open: !this.state.open})}
-                    onRequestAdd={(addedChip) => {
-                        let chip = {
-                            tag: addedChip.tag.trim()
-                            , id: typeof addedChip.id === 'number'
-                                ? addedChip.id :
-                                addedChip.id.trim()
-                        };
-                        this.props.fetchTags(chip.tag);
-                        if (chip.tag.length >= 3) {
-                            let values = this.state.tags;
-                            values = values.slice();
-                            values.push(chip);
-                            this.setState({tags: values});
-                            input.onChange(values);
-                        }
-                    }}
-                    onUpdateInput={(chip) => chip.trim().length >= 1 ? this.props.fetchTags(chip) : null}
-                    onRequestDelete={(deletedChip) => {
-                        let values = this.state.tags;
-
-                        function findCherries(item) {
-                            return item.id !== deletedChip;
-                        }
-
-                        values = values.filter(findCherries);
-                        this.setState({tags: values});
-                        input.onChange(values);
-                    }}
-
-                    onBlur={(event) => {
-                        let item = event.target.value;
-                        item.trim();
-                        if (item && item.length >= 3) {
-                            let val = {tag: item, id: item};
-                            let values = this.state.tags;
-                            values = values.slice();
-                            values.push(val);
-                            this.setState({tags: values});
-                            input.onBlur(values);
-                        }
-                    }
-                    }
-                    dataSource={data}
-                    dataSourceConfig={{text: 'tag', value: 'id'}}
-                    hintText={hintText}
-                    floatingLabelText={floatingLabelText}
-                    style={{width: 400}}
-                />
-                <div className="text-help">
-                    {touched && error && <span style={{color: 'red'}}>{error}</span>}
-                </div>
-            </div>
-
-        )
-    };
+    
     renderCategoryInput = ({input, meta, defaultValue, data, placeholder, label}) => {
         const {touched, error} = meta;
         const className = `form-group ${touched && error ? "has-danger" : ""}`;
@@ -254,6 +174,7 @@ class UpdateOwnPost extends Component {
 
     render() {
         const {handleSubmit, pristine, reset, submitting} = this.props;
+        console.log(this.props.post);
         if (!_.isEmpty(this.props.blogs) && !_.isEmpty(this.props.post)) {
             return (
                 <Content style={{backgroundColor: 'white'}}>
@@ -306,10 +227,12 @@ class UpdateOwnPost extends Component {
                                 />
                                 <Field
                                     label="Теги"
-                                    defaultValue={this.props.post.tags}
+                                    fetchTags={this.props.fetchTags}
+                                    //defaultValue={this.props.post.tags}
+                                    defValue={this.props.post.tags}
                                     data={this.props.listTags}
                                     name="tags"
-                                    component={this.renderInput}
+                                    component={renderChipInput}
                                     hintText='...'
                                     floatingLabelText='Теги'/>
                                 <Button disabled={submitting} type="primary"
@@ -321,11 +244,10 @@ class UpdateOwnPost extends Component {
                     </main>
                 </Content>
             );
-        } else {
-            return (
-                <div>...Loading</div>
-            )
         }
+        return (
+            <div>...Loading</div>
+        )
     }
 }
 
@@ -352,17 +274,16 @@ function validate(values) {
         errors.tags = "Введіть теги";
     }
 
-    // If errors is empty, the form is fine to submit
-    // If errors has *any* properties, redux form assumes form is invalid
     return errors;
 }
 
 const mapStateToProps = ({post, list, blog: {blogs}, category}) => {
+    console.log(list);
     return {
         post,
         listTags: list,
         blogs,
-        categories: category || [],
+        categories: category,
     }
 };
 
